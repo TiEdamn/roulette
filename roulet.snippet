@@ -1,0 +1,38 @@
+<?php
+// Откликаться будет ТОЛЬКО на ajax запросы
+if ($_SERVER['HTTP_X_REQUESTED_WITH'] != 'XMLHttpRequest') {return;}
+
+// Сниппет будет обрабатывать не один вид запросов, поэтому работать будем по запрашиваемому действию
+// Если в массиве POST нет действия - выход
+if (empty($_POST['action'])) {return;}
+
+// А если есть - работаем
+$res = '';
+switch ($_POST['action']) {
+	case 'roll':
+	    $spin = rand(1, 3); // Количество вращений, умножаем на количество вариантов
+	    $res['spin'] = $spin;
+	    for($i=0;$i<3;$i++){
+	        //$res.= $i.":".rand(1, 4).", "; // Максимальное значение равно количеству вариантов
+	        $cur = 'number'.$i;
+	        $res[$cur] = rand(1, 4);
+	    }
+	    if($res['number0'] == $res['number1'] && $res['number0'] == $res['number2']){
+	        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	        $charactersLength = strlen($characters);
+	        $randomString = '';
+	        for ($i = 0; $i < 6; $i++) {
+                $randomString .= $characters[rand(0, $charactersLength - 1)];
+            }
+	        $res['promo'] = $randomString;
+	    }
+	    $result = json_encode($res);
+		//$res.= 'Количество вращений: '.$spin;
+		break;
+	// А вот сюда потом добавлять новые методы
+}
+
+// Если у нас есть, что отдать на запрос - отдаем и прерываем работу парсера MODX
+if (!empty($result)) {
+	die($result);
+}

@@ -1,0 +1,94 @@
+
+<html>
+<head>
+<title>MODX Revolution - Рулетка</title>
+</head>
+<body>
+    <h1>Страница рулетки</h1>
+    <h2 class="title">Рулетка</h2>
+    <ul class=""><li class="first"><a href="/" >Главная</a></li><li><a href="новости/" >Новости</a></li><li><a href="товары.html" >Товары</a></li><li><a href="pdo/" >PDO</a></li><li><a href="контакты.html" >Контакты</a></li><li><a href="галерея-migxdb.html" >Галерея MIGXDB</a></li><li><a href="логирование.html" >Логирование</a></li><li class="active"><a href="рулетка.html" >Рулетка</a></li><li class="last"><a href="презентация.html" >Презентация</a></li></ul>
+    <div style="margin-bottom:30px"></div>
+
+    [[!roulet]]
+    
+    <!-- Подключаем jquery с сервера Яндекса -->
+    <script type="text/javascript" src="http://yandex.st/jquery/1.7.1/jquery.min.js"></script>
+    <!-- Наш скрипт запроса и обработки -->
+    <script type="text/javascript">
+    $(document).ready(function() {
+        
+        $('.number').html('<img src="'+$('.ajax_link').data('img')+'" alt=""/>');
+    	// Вешаем обработчик события "клик" на все ссылки с классом ajax_link
+    	$('.ajax_link').click(function() {
+    	
+    	    
+        	$('.number').html('');
+        	
+        	// Берем действие из атрибута data-action ссылки
+        	var action = $(this).data('action');
+        	
+        	// Ajax запрос к текущей страницы (а на ней наш сниппет) методом post
+        	$.post(document.location.href, {action: action}, function(data) {
+        		// Выдаем ответ
+        		var roll = $.parseJSON(data);
+        		for(var i = 0; i <= roll.spin; i++){
+        		    $('.number').append('<img src="'+$('.ajax_link').data('img')+'" alt=""/>');
+        		}
+        		
+        		$('.ajax_link').prop('disabled', true);
+
+        		var spin0 = roll.spin * 400 + roll.number0 * 100 - 100; 
+        		var spin1 = roll.spin * 400 + roll.number1 * 100 - 100; 
+        		var spin2 = roll.spin * 400 + roll.number2 * 100 - 100; 
+        		var spinspeed = roll.spin * 1700;
+        		$('#number-1 img').animate({
+                    top: "-"+spin0
+                }, spinspeed);
+                $('#number-2 img').animate({
+                    top: "-"+spin1
+                }, spinspeed);
+                $('#number-3 img').animate({
+                    top: "-"+spin2
+                }, spinspeed, function() {
+                    $('.ajax_link').prop('disabled', false);
+                });
+        		$('#result').html("Вращений: "+roll.spin+", Число1: "+roll.number0+", Число2: "+roll.number1+", Число3: "+roll.number2+", Промо: "+roll.promo);
+        	})
+        	
+        	// Не даем ссылке кликнуться - нам же не нужна перезагрузка страницы?
+        	return false;
+        })
+    })
+    </script>
+    
+    <style>
+        #spinner{
+            width:100%;
+            float:left;
+            margin-bottom:20px;
+        }
+        .number{
+            width: 100px;
+            height: 100px;
+            overflow: hidden;
+            float: left;
+        }
+        .number img{
+            position: relative;
+        }
+    </style>
+    
+    <!-- Ссылка с нужным классом и data - атрибутом, с действием -->
+    <button data-action="roll" data-img="img/number.png" class="ajax_link">Испытать удачу!</button>
+    
+    <!-- html элемент для вставки ответа от php -->
+    <div id="spinner">
+        <div id="number-1" class="number"></div>
+        <div id="number-2" class="number"></div>
+        <div id="number-3" class="number"></div>
+    </div>
+    
+    <div id="result"></div>
+
+</body>
+</html>
